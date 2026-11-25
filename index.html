@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Groundwork Digital · Booking Dashboard (Demo)</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#16202e;--mut:#6b7686;--line:#e4e8ee;--brand:#1f6f5c;--brand2:#e8f3ef;--warn:#b45309;--warn2:#fef3c7;--bad:#b91c1c;--bad2:#fee2e2;--ok:#15803d;--ok2:#dcfce7;--gray2:#eceff3;--blue:#1d4ed8;--blue2:#dbeafe}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141b;--card:#18202b;--ink:#e8edf3;--mut:#93a0b1;--line:#2a3544;--brand:#3fb596;--brand2:#16322b;--warn:#fbbf24;--warn2:#3a2c0b;--bad:#f87171;--bad2:#3b1618;--ok:#4ade80;--ok2:#12301d;--gray2:#242e3b;--blue:#93b4ff;--blue2:#1b2a4d}}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.app{display:flex;min-height:100vh}
+aside{width:240px;background:var(--card);border-right:1px solid var(--line);padding:20px 14px;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;gap:6px;z-index:30;transition:transform .2s}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;padding:4px 8px 18px}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:800}
+.brand small{display:block;color:var(--mut);font-weight:500;font-size:12px}
+.nav{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;background:none;border-radius:9px;cursor:pointer;text-align:left;color:var(--mut);font-weight:600}
+.nav:hover{background:var(--gray2)}.nav.on{background:var(--brand2);color:var(--brand)}
+.side-note{margin-top:auto;font-size:12px;color:var(--mut);padding:10px;border:1px dashed var(--line);border-radius:9px}
+.main{margin-left:240px;flex:1;min-width:0}
+.top{display:flex;align-items:center;gap:12px;padding:14px 24px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.top h1{font-size:19px;margin:0;flex:1}.top .date{color:var(--mut);font-size:13px}
+.burger{display:none;border:1px solid var(--line);background:none;border-radius:8px;padding:6px 10px;cursor:pointer}
+.banner{margin:16px 24px 0;padding:10px 14px;background:var(--warn2);color:var(--warn);border-radius:10px;font-size:13px}
+section{display:none;padding:20px 24px 40px}section.on{display:block}
+.btn{border:1px solid var(--line);background:var(--card);padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:600}
+.btn:hover{background:var(--gray2)}.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}.btn.pri:hover{filter:brightness(1.1)}
+.btn.sm{padding:4px 10px;font-size:13px}.btn.ok{color:var(--ok)}.btn.bad{color:var(--bad)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.stat .k{color:var(--mut);font-size:13px;font-weight:600}.stat .v{font-size:30px;font-weight:800;margin-top:4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+h2{font-size:16px;margin:0 0 12px}
+.row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.row:first-of-type{border-top:0}
+.row .grow{flex:1;min-width:0}.row small{color:var(--mut)}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700;text-transform:capitalize}
+.pending,.held{background:var(--warn2);color:var(--warn)}.confirmed,.reserved{background:var(--ok2);color:var(--ok)}
+.rejected{background:var(--bad2);color:var(--bad)}.cancelled,.available{background:var(--gray2);color:var(--mut)}.occupied{background:var(--blue2);color:var(--blue)}
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.filters input,.filters select,form input,form select,form textarea{padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--card);width:100%}
+.filters input[type=search]{flex:1;min-width:200px;width:auto}.filters select,.filters input[type=date]{width:auto}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:700px}
+th{text-align:left;font-size:13px;color:var(--mut);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line)}
+td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}td small{color:var(--mut);display:block}
+td.act{white-space:nowrap}td.act .btn{margin-right:6px}
+.empty{padding:30px;text-align:center;color:var(--mut)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.floor-wrap{display:grid;grid-template-columns:1fr 300px;gap:14px}
+.floor{position:relative;height:440px;background:var(--card);border:1px solid var(--line);border-radius:14px;background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:20px 20px}
+.zone{position:absolute;font-size:12px;color:var(--mut);font-weight:600}
+.tbl{position:absolute;border:2px solid var(--line);border-radius:14px;display:grid;place-items:center;cursor:pointer;text-align:center;font-weight:700;font-size:13px;background:var(--card);line-height:1.25;padding:2px;color:var(--ink)}
+.tbl small{font-weight:500;color:var(--mut);display:block;font-size:11px}
+.tbl.sel{outline:3px solid var(--brand);outline-offset:2px}
+.tbl.available{border-color:var(--mut)}.tbl.reserved{border-color:var(--ok);background:var(--ok2)}
+.tbl.held{border-color:var(--warn);background:var(--warn2)}.tbl.occupied{border-color:var(--blue);background:var(--blue2)}
+form label{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fg .full{grid-column:1/-1}
+dialog{border:0;border-radius:16px;padding:22px;width:min(560px,94vw);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(10,15,22,.55)}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin:8px 0}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:99;font-weight:600;max-width:90vw;text-align:center}
+#toast.on{opacity:1}
+@media(max-width:900px){aside{transform:translateX(-100%)}aside.open{transform:none;box-shadow:0 0 40px rgba(0,0,0,.4)}.main{margin-left:0}.burger{display:block}
+.grid4{grid-template-columns:1fr 1fr}.two,.floor-wrap{grid-template-columns:1fr}.top,section{padding-left:16px;padding-right:16px}.banner{margin:12px 16px 0}.top .date{display:none}}
+@media(max-width:520px){.fg{grid-template-columns:1fr}.floor{height:540px}.top .btn.pri{padding:8px 10px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside id="side">
+  <div class="brand"><div class="logo">G</div><div>Groundwork Digital<small>Booking dashboard</small></div></div>
+  <button class="nav on" data-view="overview">▦ Overview</button>
+  <button class="nav" data-view="bookings">☰ Bookings</button>
+  <button class="nav" data-view="floor">◫ Floor plan</button>
+  <button class="nav" data-view="settings">⚙ Settings</button>
+  <div class="side-note">Frontend demo. Data is stored only in this browser (localStorage). There are no emails, no login and no database.</div>
+</aside>
+<div class="main">
+  <header class="top">
+    <button class="burger" id="burger" aria-label="Open menu">☰</button>
+    <h1 id="title">Overview</h1><span class="date" id="today"></span>
+    <button class="btn pri" id="add">+ Add booking</button>
+  </header>
+  <div class="banner"><b>Demo mode:</b> confirming or rejecting a booking only changes its status on this page. No customer is emailed.</div>
+
+  <section id="v-overview" class="on">
+    <div class="grid4" id="stats"></div>
+    <div class="two">
+      <div class="card"><h2>Today’s schedule</h2><div id="sched"></div></div>
+      <div class="card"><h2>Pending requests</h2><div id="pend"></div></div>
+    </div>
+  </section>
+
+  <section id="v-bookings">
+    <div class="filters">
+      <input type="search" id="q" placeholder="Search name, email or phone" aria-label="Search bookings">
+      <select id="fs" aria-label="Filter by status"><option value="">All statuses</option><option>pending</option><option>confirmed</option><option>rejected</option><option>cancelled</option></select>
+      <input type="date" id="fd" aria-label="Filter by date">
+      <button class="btn" id="ftoday">Today</button>
+      <button class="btn" id="fclear">Clear filters</button>
+    </div>
+    <div class="card tw" style="padding:0"><table>
+      <thead><tr><th>Customer</th><th>Date</th><th>Time</th><th>Guests</th><th>Table</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="tb"></tbody></table><div class="empty" id="none" hidden>No bookings match these filters. Clear them or add a booking.</div></div>
+  </section>
+
+  <section id="v-floor">
+    <div class="legend"><span class="pill available">available</span><span class="pill held">held (pending)</span><span class="pill reserved">reserved</span><span class="pill occupied">occupied</span><small style="color:var(--mut)">Status reflects today’s bookings. Select a table for details.</small></div>
+    <div class="floor-wrap"><div class="floor" id="floor"></div><div class="card" id="fpanel"></div></div>
+  </section>
+
+  <section id="v-settings">
+    <div class="card" style="max-width:640px">
+      <h2>Restaurant settings</h2>
+      <form id="sform"><div class="fg">
+        <div class="full"><label for="s-name">Restaurant name</label><input id="s-name" required maxlength="60"></div>
+        <div><label for="s-open">First seating</label><input id="s-open" type="time" required></div>
+        <div><label for="s-last">Last seating</label><input id="s-last" type="time" required></div>
+        <div><label for="s-int">Slot interval (minutes)</label><input id="s-int" type="number" min="15" max="120" step="15" required></div>
+        <div><label for="s-dur">Reservation length (minutes)</label><input id="s-dur" type="number" min="30" max="300" step="15" required></div>
+        <div><label for="s-hold">Pending hold (minutes)</label><input id="s-hold" type="number" min="5" max="240" required></div>
+        <div><label for="s-max">Max party size</label><input id="s-max" type="number" min="1" max="30" required></div>
+      </div>
+      <div class="err" id="serr"></div>
+      <button class="btn pri" type="submit">Save settings</button>
+      <button class="btn bad" type="button" id="reset">Reset demo data</button></form>
+      <p style="color:var(--mut);font-size:13px">The pending hold is saved but not enforced in this demo. A production system would release expired holds on the server.</p>
+    </div>
+  </section>
+</div>
+</div>
+
+<dialog id="dlg"><form id="bform">
+  <h2>Add booking</h2><div class="fg">
+  <div class="full"><label for="b-name">Full name</label><input id="b-name" required maxlength="80"></div>
+  <div><label for="b-email">Email</label><input id="b-email" type="email" required></div>
+  <div><label for="b-phone">Phone</label><input id="b-phone" type="tel" required pattern="[+0-9 ()\-]{5,25}" title="Digits, spaces, + ( ) -"></div>
+  <div><label for="b-date">Date</label><input id="b-date" type="date" required></div>
+  <div><label for="b-time">Time</label><select id="b-time" required></select></div>
+  <div><label for="b-party">Guests</label><input id="b-party" type="number" min="1" value="2" required></div>
+  <div><label for="b-table">Table</label><select id="b-table"></select></div>
+  <div class="full"><label for="b-notes">Special requests</label><textarea id="b-notes" rows="2" maxlength="300"></textarea></div>
+  <div class="full"><label for="b-status">Status</label><select id="b-status"><option>pending</option><option>confirmed</option></select></div></div>
+  <div class="err" id="berr" role="alert"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" type="button" id="bcancel">Cancel</button><button class="btn pri" type="submit">Save booking</button></div>
+</form></dialog>
+<div id="toast" role="status"></div>
+
+<script>
+const KEY='gw_booking_demo_v1';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const dayOff=n=>{const d=new Date();d.setDate(d.getDate()+n);return ymd(d)};
+const mins=t=>{const[h,m]=t.split(':').map(Number);return h*60+m};
+const hhmm=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const TABLES=[
+ {id:'T1',seats:2,x:4,y:10,w:11,h:14},{id:'T2',seats:2,x:4,y:32,w:11,h:14},{id:'T3',seats:2,x:4,y:54,w:11,h:14},
+ {id:'T4',seats:4,x:24,y:10,w:16,h:18},{id:'T5',seats:4,x:46,y:10,w:16,h:18},{id:'T6',seats:4,x:24,y:40,w:16,h:18},{id:'T7',seats:4,x:46,y:40,w:16,h:18},
+ {id:'T8',seats:6,x:24,y:70,w:20,h:20},{id:'T9',seats:6,x:50,y:70,w:20,h:20},
+ {id:'T10',seats:8,x:76,y:10,w:20,h:24},{id:'T11',seats:2,x:80,y:46,w:12,h:14},{id:'T12',seats:4,x:78,y:70,w:16,h:18}];
+const DEF={name:'Olive & Ember',open:'12:00',last:'21:30',interval:30,duration:90,hold:30,maxParty:8};
+function seed(){
+ const r=[['Elena Marković','elena.m@example.com','+357 99 120045',0,'12:30',2,'confirmed','T1','Anniversary, window seat'],
+ ['Daniel Okafor','d.okafor@example.com','+357 96 554120',0,'13:00',4,'confirmed','T4',''],
+ ['Sofia Papadopoulou','sofia.p@example.com','+357 99 880211',0,'19:00',6,'pending','T8','High chair needed'],
+ ['Marcus Lindqvist','marcus.l@example.com','+357 97 331908',0,'19:30',2,'pending','T2',''],
+ ['Aisha Rahman','aisha.r@example.com','+357 99 427733',0,'20:00',4,'confirmed','T5','Vegetarian menu'],
+ ['Tomás Herrera','tomas.h@example.com','+357 96 775002',0,'20:30',8,'pending','T10','Birthday dinner'],
+ ['Chloe Bennett','chloe.b@example.com','+357 99 663190',1,'12:00',2,'confirmed','T3',''],
+ ['Nikos Andreou','nikos.a@example.com','+357 99 100234',1,'19:00',5,'pending','T9','Nut allergy'],
+ ['Priya Nair','priya.n@example.com','+357 97 009812',2,'20:00',3,'confirmed','T6',''],
+ ['Lukas Weber','lukas.w@example.com','+357 96 442871',3,'13:30',2,'rejected','',''],
+ ['Hannah Cohen','hannah.c@example.com','+357 99 556610',-1,'19:30',4,'confirmed','T7',''],
+ ['Omar Haddad','omar.h@example.com','+357 97 218845',-2,'20:00',2,'cancelled','T11','']];
+ return r.map((a,i)=>({id:'b'+(i+1),name:a[0],email:a[1],phone:a[2],date:dayOff(a[3]),time:a[4],party:a[5],status:a[6],table:a[7],notes:a[8]}));
+}
+let S,selTable=null;
+function load(){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+ if(!S||!Array.isArray(S.bookings))S={bookings:seed(),occ:{},settings:{...DEF},n:100};
+ S.occ=S.occ||{};S.settings={...DEF,...S.settings};}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+load();
+const active=b=>b.status==='pending'||b.status==='confirmed';
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2600)}
+function conflict(b,exceptId){
+ if(!b.table)return null;
+ return S.bookings.find(o=>o.id!==exceptId&&active(o)&&o.table===b.table&&o.date===b.date&&Math.abs(mins(o.time)-mins(b.time))<S.settings.duration);}
+function tableStatus(t){
+ const today=ymd(new Date());
+ if(S.occ[t.id])return'occupied';
+ const bs=S.bookings.filter(b=>b.table===t.id&&b.date===today&&active(b));
+ if(bs.some(b=>b.status==='confirmed'))return'reserved';
+ return bs.length?'held':'available';}
+const pill=s=>`<span class="pill ${s}">${s}</span>`;
+const nice=d=>new Date(d+'T12:00').toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+
+function renderOverview(){
+ const today=ymd(new Date()),tb=S.bookings.filter(b=>b.date===today&&active(b));
+ const pend=S.bookings.filter(b=>b.status==='pending');
+ const free=TABLES.filter(t=>tableStatus(t)==='available').length;
+ const st=[['Today’s bookings',tb.length],['Guests today',tb.reduce((a,b)=>a+b.party,0)],['Pending requests',pend.length],['Available tables',free+' of '+TABLES.length]];
+ $('#stats').innerHTML=st.map(s=>`<div class="card stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div></div>`).join('');
+ const sched=tb.slice().sort((a,b)=>a.time.localeCompare(b.time));
+ $('#sched').innerHTML=sched.length?sched.map(b=>`<div class="row"><b>${b.time}</b><div class="grow">${esc(b.name)}<br><small>${b.party} guests${b.table?', table '+b.table:''}</small></div>${pill(b.status)}</div>`).join(''):'<div class="empty">No bookings today. Add one to get started.</div>';
+ $('#pend').innerHTML=pend.length?pend.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(b=>`<div class="row"><div class="grow">${esc(b.name)}<br><small>${nice(b.date)} at ${b.time}, ${b.party} guests</small></div><button class="btn sm ok" data-act="confirm" data-id="${b.id}">Confirm</button><button class="btn sm bad" data-act="reject" data-id="${b.id}">Reject</button></div>`).join(''):'<div class="empty">No pending requests.</div>';
+}
+function renderBookings(){
+ const q=$('#q').value.trim().toLowerCase(),fs=$('#fs').value,fd=$('#fd').value;
+ const list=S.bookings.filter(b=>(!fs||b.status===fs)&&(!fd||b.date===fd)&&(!q||(b.name+b.email+b.phone).toLowerCase().includes(q)))
+  .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+ $('#none').hidden=list.length>0;
+ $('#tb').innerHTML=list.map(b=>`<tr><td>${esc(b.name)}<small>${esc(b.email)}, ${esc(b.phone)}</small>${b.notes?`<small>“${esc(b.notes)}”</small>`:''}</td><td>${nice(b.date)}</td><td>${b.time}</td><td>${b.party}</td><td>${b.table||'—'}</td><td>${pill(b.status)}</td>
+ <td class="act">${b.status==='pending'?`<button class="btn sm ok" data-act="confirm" data-id="${b.id}">Confirm</button><button class="btn sm bad" data-act="reject" data-id="${b.id}">Reject</button>`:b.status==='confirmed'?`<button class="btn sm bad" data-act="cancel" data-id="${b.id}">Cancel</button>`:'<small>No actions</small>'}</td></tr>`).join('');
+}
+function renderFloor(){
+ const zones='<div class="zone" style="left:4%;top:2%">Window</div><div class="zone" style="left:24%;top:2%">Main room</div><div class="zone" style="left:76%;top:2%">Group area</div><div class="zone" style="left:24%;top:62%">Long tables</div>';
+ $('#floor').innerHTML=zones+TABLES.map(t=>{const s=tableStatus(t);
+  return `<div class="tbl ${s}${selTable===t.id?' sel':''}" tabindex="0" role="button" data-t="${t.id}" aria-label="Table ${t.id}, ${t.seats} seats, ${s}" style="left:${t.x}%;top:${t.y}%;width:${t.w}%;height:${t.h}%"><div>${t.id}<small>${t.seats} seats</small><small>${s}</small></div></div>`}).join('');
+ const p=$('#fpanel'),t=TABLES.find(x=>x.id===selTable);
+ if(!t){p.innerHTML='<h2>Table details</h2><div class="empty">Select a table on the plan to see today’s bookings.</div>';return}
+ const today=ymd(new Date()),bs=S.bookings.filter(b=>b.table===t.id&&b.date===today&&active(b)).sort((a,b)=>a.time.localeCompare(b.time));
+ p.innerHTML=`<h2>Table ${t.id} · ${t.seats} seats</h2><p>${pill(tableStatus(t))}</p><h2 style="margin-top:14px">Today</h2>`+
+  (bs.length?bs.map(b=>`<div class="row"><b>${b.time}</b><div class="grow">${esc(b.name)}<br><small>${b.party} guests</small></div>${pill(b.status)}</div>`).join(''):'<div class="empty" style="padding:12px">No bookings today.</div>')+
+  `<button class="btn" style="margin-top:12px;width:100%" data-occ="${t.id}">${S.occ[t.id]?'Mark as free':'Mark as occupied'}</button>`;
+}
+function renderSettings(){const s=S.settings;
+ $('#s-name').value=s.name;$('#s-open').value=s.open;$('#s-last').value=s.last;$('#s-int').value=s.interval;$('#s-dur').value=s.duration;$('#s-hold').value=s.hold;$('#s-max').value=s.maxParty;$('#serr').textContent='';}
+function renderAll(){renderOverview();renderBookings();renderFloor();}
+
+const TITLES={overview:'Overview',bookings:'Bookings',floor:'Floor plan',settings:'Settings'};
+function setView(v){if(!TITLES[v])v='overview';
+ document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+ document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));
+ $('#title').textContent=TITLES[v];$('#side').classList.remove('open');
+ if(v==='settings')renderSettings();
+ try{history.replaceState(null,'','#'+v)}catch(e){location.hash=v}
+ window.scrollTo(0,0);}
+document.querySelectorAll('.nav').forEach(n=>n.onclick=()=>setView(n.dataset.view));
+$('#burger').onclick=()=>$('#side').classList.toggle('open');
+
+document.addEventListener('click',e=>{
+ const a=e.target.closest('[data-act]');
+ if(a){const b=S.bookings.find(x=>x.id===a.dataset.id);if(!b)return;
+  if(a.dataset.act==='confirm'){const c=conflict(b,b.id);
+   if(c){toast('Cannot confirm: table '+b.table+' is already booked at that time by '+c.name+'.');return}
+   b.status='confirmed';toast('Booking confirmed (demo: no email sent)');}
+  else if(a.dataset.act==='reject'){b.status='rejected';toast('Booking rejected (demo: no email sent)');}
+  else if(a.dataset.act==='cancel'){b.status='cancelled';toast('Booking cancelled');}
+  save();renderAll();return;}
+ const o=e.target.closest('[data-occ]');
+ if(o){S.occ[o.dataset.occ]=!S.occ[o.dataset.occ];if(!S.occ[o.dataset.occ])delete S.occ[o.dataset.occ];save();renderAll();return;}
+ const t=e.target.closest('[data-t]');
+ if(t){selTable=t.dataset.t;renderFloor();}
+});
+$('#floor').addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.dataset.t){e.preventDefault();selTable=e.target.dataset.t;renderFloor();const el=document.querySelector('[data-t="'+selTable+'"]');if(el)el.focus();}});
+
+['q','fs','fd'].forEach(id=>$('#'+id).addEventListener('input',renderBookings));
+$('#ftoday').onclick=()=>{$('#fd').value=ymd(new Date());renderBookings()};
+$('#fclear').onclick=()=>{$('#q').value='';$('#fs').value='';$('#fd').value='';renderBookings()};
+
+const dlg=$('#dlg');
+function openForm(){
+ const s=S.settings;let h='';
+ for(let m=mins(s.open);m<=mins(s.last);m+=s.interval)h+=`<option>${hhmm(m)}</option>`;
+ $('#b-time').innerHTML=h;
+ $('#b-table').innerHTML='<option value="">Assign automatically</option>'+TABLES.map(t=>`<option value="${t.id}">${t.id} (${t.seats} seats)</option>`).join('');
+ $('#bform').reset();$('#b-date').value=ymd(new Date());$('#b-date').min=ymd(new Date());$('#b-party').max=s.maxParty;$('#berr').textContent='';
+ dlg.showModal();$('#b-name').focus();}
+$('#add').onclick=openForm;$('#bcancel').onclick=()=>dlg.close();
+$('#bform').addEventListener('submit',e=>{
+ e.preventDefault();const err=m=>{$('#berr').textContent=m};
+ const b={id:'b'+(++S.n),name:$('#b-name').value.trim(),email:$('#b-email').value.trim(),phone:$('#b-phone').value.trim(),
+  date:$('#b-date').value,time:$('#b-time').value,party:parseInt($('#b-party').value,10),table:$('#b-table').value,
+  notes:$('#b-notes').value.trim(),status:$('#b-status').value};
+ if(b.name.length<2)return err('Enter the customer’s full name.');
+ if(!(b.party>=1)||b.party>S.settings.maxParty)return err('Party size must be between 1 and '+S.settings.maxParty+'.');
+ if(b.date<ymd(new Date()))return err('Choose today or a future date.');
+ if(b.table){const t=TABLES.find(x=>x.id===b.table);
+  if(t.seats<b.party)return err('Table '+t.id+' seats '+t.seats+'. Choose a larger table or assign automatically.');
+  const c=conflict(b,null);if(c)return err('Table '+b.table+' is already booked around that time ('+c.name+', '+c.time+'). Pick another table or time.');}
+ else{const t=TABLES.filter(x=>x.seats>=b.party).sort((x,y)=>x.seats-y.seats).find(x=>!conflict({...b,table:x.id},null));
+  if(!t)return err('No table for '+b.party+' guests is free at that time. Try another time.');b.table=t.id;}
+ S.bookings.push(b);save();renderAll();dlg.close();toast('Booking added for '+b.name+' at table '+b.table);});
+
+$('#sform').addEventListener('submit',e=>{e.preventDefault();
+ const s={name:$('#s-name').value.trim(),open:$('#s-open').value,last:$('#s-last').value,interval:+$('#s-int').value,duration:+$('#s-dur').value,hold:+$('#s-hold').value,maxParty:+$('#s-max').value};
+ if(mins(s.last)<mins(s.open)){$('#serr').textContent='Last seating must be after the first seating.';return}
+ S.settings=s;save();$('#serr').textContent='';toast('Settings saved');renderAll();});
+$('#reset').onclick=()=>{if(confirm('Reset all demo data to the original sample bookings?')){S={bookings:seed(),occ:{},settings:{...DEF},n:100};selTable=null;save();renderAll();renderSettings();toast('Demo data reset');}};
+
+$('#today').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+renderAll();setView(location.hash.slice(1));
+</script>
+</body>
+</html>
